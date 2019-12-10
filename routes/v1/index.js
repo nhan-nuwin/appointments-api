@@ -10,7 +10,7 @@ router.get('/doctors', function(req, res, next) {
 });
 
 /* Create Doctor's Names */
-router.post('/doctors', function(req, res,next) {
+router.post('/doctors', function(req, res, next) {
   let firstName = req.query['first-name'];
   let lastName = req.query['last-name'];
 
@@ -19,9 +19,23 @@ router.post('/doctors', function(req, res,next) {
     db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
       if(err)
         console.log(err);
-
       res.send(results);
     }); 
+  } else {
+    res.send('Failed');
+  }
+});
+
+/* Delete Doctor's names */
+router.delete('/doctors', function(req, res, next) {
+  const id = req.query.id;
+  
+  if(id) {
+    db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
+      if(err)
+        console.log(err);
+      res.send(results);
+    });
   } else {
     res.send('Failed');
   }
