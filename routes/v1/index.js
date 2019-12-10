@@ -1,39 +1,29 @@
 var express = require('express');
 var router = express.Router();
+var db = require('../db');
 
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
-  const id = req.query.id;
-
-  if(id) {
-    id = parseInt(id);
-    db.get(id)
-      .then( response => response.json() )
-      .then( data => {
-        const firstName = data[0].first_name;
-        const lastName = data[0].last_name;
-        const obj = {
-          firstName,
-          lastName
-        };
-
-        res.send(obj);
-      })
-      .catch( err => console.log(err));
-  } else {
-    res.send('Not Found');
-  }
+  db.query('select * from doctors', (err, results, fields) => {
+    res.send(results);
+  });
 });
 
-/* Insert Doctor's Names */
+/* Create Doctor's Names */
 router.post('/doctors', function(req, res,next) {
   let firstName = req.query['first-name'];
   let lastName = req.query['last-name'];
 
   if(firstName && lastName) {
-    db.add({firstName, lastName})
-      .then( () => res.send('Success'))
-      .catch( err => console.log(err));
+    console.log(req.query);
+    db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
+      if(err)
+        console.log(err);
+
+      res.send(results);
+    }); 
+  } else {
+    res.send('Failed');
   }
 });
 
