@@ -6,3 +6,9 @@ A backend REST api to manage doctor's appointments
 2. GET to retrieve a doctors appointment by day
 3. DELETE to delete an appointment
 4. POST create an appointment for a doctor
+
+## Data Models
+1. Doctors
+  * int id 
+  * string first_name
+  * string last_name
