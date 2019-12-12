@@ -9,7 +9,7 @@ A backend REST api to manage doctor's appointments
 
 ## Data Models
 Doctors |
---- | ---
+--- | --- | 
 type | name |
  int | id | 
  string | first_name |
