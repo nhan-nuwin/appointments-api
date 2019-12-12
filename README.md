@@ -1,5 +1,5 @@
 # appointments-api
-A backend REST api to manage appointments
+A backend REST api to manage doctor's appointments
 
 ## Requirements
 1. GET to retrieve a list of doctors names
