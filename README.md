@@ -8,7 +8,7 @@ A backend REST api to manage doctor's appointments
 4. POST create an appointment for a doctor
 
 ## Data Models
-  | Doctors
+| Doctors |
 --- | ---
  int | id 
  string | first_name
