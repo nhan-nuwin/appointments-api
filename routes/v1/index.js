@@ -11,7 +11,10 @@ router.get('/doctors', function(req, res, next) {
 
 /* Get name of specific doctor */
 router.get('/doctors/:id', function(req, res, next) {
-  res.send(req.params.id);
+  const id = req.params.id;
+  db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
+    res.send(results);
+  });
 });
 
 
