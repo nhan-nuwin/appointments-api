@@ -2,18 +2,19 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 
-/* Get name of specific doctor */
-router.get('/doctors/:id', function(req, res,next) {
-  const id = paseInt(req.params.id);
-  res.send(id);
-});
-
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
   db.query('select * from doctors', (err, results, fields) => {
     res.send(results);
   });
 });
+
+/* Get name of specific doctor */
+router.get('/doctors/:id', function(req, res, next) {
+  const id = paseInt(req.params.id);
+  res.send(id);
+});
+
 
 /* Create Doctor's Names */
 router.post('/doctors', function(req, res, next) {
