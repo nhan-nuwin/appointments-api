@@ -9,6 +9,14 @@ router.get('/doctors', function(req, res, next) {
   });
 });
 
+/* Get name of specific doctor */
+router.get('/doctors/:id', function(req, res,next) {
+  const id = paseInt(req.params.id);
+  db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
+    res.send(results);
+  });
+});
+
 /* Create Doctor's Names */
 router.post('/doctors', function(req, res, next) {
   let firstName = req.query['first-name'];
@@ -25,6 +33,8 @@ router.post('/doctors', function(req, res, next) {
     res.send('Failed');
   }
 });
+
+/* Update Doctor's Name */
 
 /* Delete Doctor's names */
 router.delete('/doctors', function(req, res, next) {
