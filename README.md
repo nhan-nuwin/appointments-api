@@ -8,12 +8,14 @@ A backend REST api to manage doctor's appointments
 4. POST create an appointment for a doctor
 
 ## Data Models
+```
 Doctors = {
   id: int,
   first_name: string,
-  last_name: string,
+  last_name: string
 }
-
+```
+```
 Appointments = {
   id: int,
   date: date,
@@ -21,3 +23,4 @@ Appointments = {
   doctor: id int,
   type: string
 }
+```
