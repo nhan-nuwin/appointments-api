@@ -13,7 +13,12 @@ router.get('/doctors', function(req, res, next) {
 router.get('/doctors/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
-    res.send(results);
+    if(results.length < 1) {
+      res.status = 404;
+      res.send('404 Not Found')
+    } else {
+      res.send(results);
+    }
   });
 });
 
