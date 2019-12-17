@@ -11,7 +11,7 @@ router.get('/doctors', function(req, res, next) {
 
 /* Get name of specific doctor */
 router.get('/doctors/:id', function(req, res, next) {
-  res.send('hello');
+  res.send(req.params.id);
 });
 
 
