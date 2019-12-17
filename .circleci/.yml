@@ -1,0 +1,13 @@
+  version: 2.1
+  jobs:
+    build:
+      branches:
+        only:
+          - master
+      working_directory: ~/tmp
+      docker:
+        - image: circleci/node:10
+      steps:
+        - checkout
+        - run: npm install
+        - run: ssh -o StrictHostKeyChecking=no $DROPLET_USER@$DROPLET_IP 'cd appointments-api; git checkout master; git pull; npm install; npm run start:production;'
