@@ -19,7 +19,7 @@ Doctors = {
 Appointments = {
   id: int,
   date: date,
-  patient : id int
+  patient: id int
   doctor: id int,
   type: string
 }
