@@ -27,8 +27,8 @@ router.post('/doctors', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
 
-  /* Check if query param is not empty */
-  if(!firstName && !lastName) {
+  /* Check if body param is not empty */
+  if(!firstName || !lastName) {
     res.send("first-name or last-name cannot be empty");
   }
 
@@ -47,8 +47,8 @@ router.put('/doctors/:id', function(req, res, next) {
   const lastName = req.body['lastName'];
   const id = req.params.id;
 
-  /* Check if query param is not empty */
-  if(!firstName && !lastName) {
+  /* Check if body param is not empty */
+  if(!firstName || !lastName) {
     res.send("first-name or last-name cannot be empty");
   }
 
@@ -57,8 +57,8 @@ router.put('/doctors/:id', function(req, res, next) {
     if(err)
       res.send(err);
     
-    if(results > 0) {
-      db.query(`UPDATE doctors SET first_name = ${firstName}, last_name = ${lastName} WHERE id = ${id}`, (err, results, fields) => {
+    if(results.length > 0) {
+      db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
         if(err)
           res.send(err);
 
