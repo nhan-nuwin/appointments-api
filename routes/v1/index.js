@@ -2,6 +2,12 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 
+/* Doctors Model                  
+    id: int,
+    first_name: string,
+    last_name: string
+*/
+
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
   db.query('select * from doctors', (err, results, fields) => {
@@ -37,7 +43,7 @@ router.post('/doctors', function(req, res, next) {
     if(err)
       res.send(err);
 
-    res.status(200).send("Resource created");
+    res.status(201).send("Resource created");
   }); 
 });
 
@@ -82,6 +88,15 @@ router.delete('/doctors', function(req, res, next) {
     res.send('Failed');
   }
 });
+
+/* Appointments
+    id: int,
+    created: timestamp,
+    date: datetime,
+    patient : id int
+    doctor: id int,
+    type: string 
+*/
 
 /* Get list of appointments */
 router.get('/appointments', function(req, res, next) {
