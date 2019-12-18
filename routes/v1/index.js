@@ -24,8 +24,8 @@ router.get('/doctors/:id', function(req, res, next) {
 
 /* Create Doctor's Name */
 router.post('/doctors', function(req, res, next) {
-  const firstName = req.body['first-name'];
-  const lastName = req.body['last-name'];
+  const firstName = req.body['firstName'];
+  const lastName = req.body['lastName'];
 
   /* Check if query param is not empty */
   if(!firstName && !lastName) {
@@ -43,8 +43,8 @@ router.post('/doctors', function(req, res, next) {
 
 /* Update Doctor's Name */
 router.put('/doctors/:id', function(req, res, next) {
-  const firstName = req.body['first-name'];
-  const lastName = req.body['last-name'];
+  const firstName = req.body['firstName'];
+  const lastName = req.body['lastName'];
   const id = req.params.id;
 
   /* Check if query param is not empty */
