@@ -22,7 +22,6 @@ router.get('/doctors/:id', function(req, res, next) {
   });
 });
 
-
 /* Create Doctor's Names */
 router.post('/doctors', function(req, res, next) {
   let firstName = req.query['first-name'];
@@ -33,10 +32,11 @@ router.post('/doctors', function(req, res, next) {
     db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
       if(err)
         console.log(err);
-      res.send(results);
+      res.status(200);
+      res.send("Resource created");
     }); 
   } else {
-    res.send('Failed');
+    res.send('first-name or last-name cannot be blank');
   }
 });
 
