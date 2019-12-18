@@ -1,4 +1,4 @@
-# appointments-api
+# Appoinments - Backend RESTful API
 A backend REST api to manage doctor's appointments
 
 ## Requirements
@@ -24,3 +24,12 @@ Appointments = {
   type: string
 }
 ```
+## Proposed REST Routes
+. GET to retrieve a list of doctor's names
+.. GET /doctors 
+. GET to retrieve a doctor's appointment by day
+.. GET /appointments?doctor={id}&date={date}
+. DELETE to delete an appointment
+.. DELETE /appointements/{id}
+. POST to create an appointment for a doctor
+.. POST /appointments
