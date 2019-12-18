@@ -25,6 +25,7 @@ Appointments = {
 }
 ```
 ## Proposed REST Routes
+```
 . GET to retrieve a list of doctor's names
 .. GET /doctors 
 . GET to retrieve a doctor's appointment by day
@@ -33,3 +34,4 @@ Appointments = {
 .. DELETE /appointements/{id}
 . POST to create an appointment for a doctor
 .. POST /appointments
+```
