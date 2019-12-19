@@ -104,7 +104,13 @@ router.get('/appointments', function(req, res, next) {
 });
 
 /* Delete an existing appointment */
-router.delete('/appointments', function(req, res, next) {
+router.delete('/appointments/:id', function(req, res, next) {
+  const id = req.params.id;
+
+  const stmt = `DELETE FROM appointments WHERE id = ${id}`;
+  db.query(stmt, (err, results, fields) => {
+    res.send(results);
+  });
 });
 
 /* Add new appointments */
