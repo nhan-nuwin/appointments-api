@@ -2,6 +2,12 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db');
 
+/* Doctors Model                  
+    id: int,
+    first_name: string,
+    last_name: string
+*/
+
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
   db.query('select * from doctors', (err, results, fields) => {
@@ -22,25 +28,51 @@ router.get('/doctors/:id', function(req, res, next) {
   });
 });
 
-
-/* Create Doctor's Names */
+/* Create Doctor's Name */
 router.post('/doctors', function(req, res, next) {
-  let firstName = req.query['first-name'];
-  let lastName = req.query['last-name'];
+  const firstName = req.body['firstName'];
+  const lastName = req.body['lastName'];
 
-  if(firstName && lastName) {
-    console.log(req.query);
-    db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-      if(err)
-        console.log(err);
-      res.send(results);
-    }); 
-  } else {
-    res.send('Failed');
+  /* Check if body param is not empty */
+  if(!firstName || !lastName) {
+    res.send("first-name or last-name cannot be empty");
   }
+
+  /* Insert name into db */
+  db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
+    if(err)
+      res.send(err);
+
+    res.status(201).send("Resource created");
+  }); 
 });
 
 /* Update Doctor's Name */
+router.put('/doctors/:id', function(req, res, next) {
+  const firstName = req.body['firstName'];
+  const lastName = req.body['lastName'];
+  const id = req.params.id;
+
+  /* Check if body param is not empty */
+  if(!firstName || !lastName) {
+    res.send("first-name or last-name cannot be empty");
+  }
+
+  /* Check if resource exists */
+  db.query(`SELECT id FROM doctors WHERE id = ${id}`, (err, results, fields) => {
+    if(err)
+      res.send(err);
+    
+    if(results.length > 0) {
+      db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
+        if(err)
+          res.send(err);
+
+        res.status(200).send('Resource updated');
+      });
+    }
+  });
+});
 
 /* Delete Doctor's names */
 router.delete('/doctors', function(req, res, next) {
@@ -56,6 +88,15 @@ router.delete('/doctors', function(req, res, next) {
     res.send('Failed');
   }
 });
+
+/* Appointments
+    id: int,
+    created: timestamp,
+    date: datetime,
+    patient : id int
+    doctor: id int,
+    type: string 
+*/
 
 /* Get list of appointments */
 router.get('/appointments', function(req, res, next) {
