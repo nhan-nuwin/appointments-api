@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var moment = require('moment');
 var db = require('../db');
 
 /* Doctors Model                  
@@ -95,7 +96,7 @@ router.delete('/doctors', function(req, res, next) {
     date: datetime,
     patient : id int
     doctor: id int,
-    type: string 
+    visitType: string | "New Patient" , "Follow Up"
 */
 
 /* Get list of appointments */
@@ -103,11 +104,27 @@ router.get('/appointments', function(req, res, next) {
 });
 
 /* Delete an existing appointment */
-router.delete('/appointments', function(req, res, next) {
+router.delete('/appointments/:id', function(req, res, next) {
+  const id = req.params.id;
+
+  const stmt = `DELETE FROM appointments WHERE id = ${id}`;
+  db.query(stmt, (err, results, fields) => {
+    res.send(results);
+  });
 });
 
 /* Add new appointments */
-router.post('/appoinments', function(req, res, next) {
+router.post('/appointments', function(req, res, next) {
+  const {date, patient, doctor, visitType} = req.body;
+
+  if(date && patient && doctor && visitType) {
+    const stmt = `INSERT INTO appointments(date, patient, doctor, visit_type) VALUES('${date}', ${patient}, ${doctor}, '${visitType}')`;
+    db.query(stmt, (err, results, fields) => {
+      res.send(results);
+    });
+  } else {
+    res.send('failed');
+  }
 });
 
 /* Testing */
