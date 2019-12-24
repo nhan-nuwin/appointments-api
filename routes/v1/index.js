@@ -140,8 +140,12 @@ router.post('/appointments', function(req, res, next) {
 
 /* Testing */
 router.get('/test', function(req, res, next) {
-  console.log(req.query);
 });
 
+router.post('/test', (req, res, next) => {
+  if(req.body){
+    res.send('hi');
+  }
+});
 
 module.exports = router;
