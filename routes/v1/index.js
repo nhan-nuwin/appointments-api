@@ -89,8 +89,10 @@ router.delete('/doctors', function(req, res, next) {
   
   if(id) {
     db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
-      if(err)
+      if(err) {
         console.log(err);
+        return;
+      }
       res.send(results);
     });
   } else {
