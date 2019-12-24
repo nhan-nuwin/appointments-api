@@ -10,7 +10,7 @@ create table doctors(
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
-  primary key(int)
+  primary key(id)
 );
 
 create table appointments(
