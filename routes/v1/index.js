@@ -93,6 +93,7 @@ router.delete('/doctors', function(req, res, next) {
         console.log(err);
         return;
       }
+      
       res.send(results);
     });
   } else {
