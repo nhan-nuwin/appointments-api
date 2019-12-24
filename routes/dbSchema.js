@@ -13,13 +13,20 @@ create table doctors(
   primary key(id)
 );
 
+create table patient(
+  id int auto_increment,
+  first_name varchar(100),
+  last_name varchar(100),
+  primary key(id)
+);
+
 create table appointments(
   id int auto_increment,
   date datetime,
   created timestamp,
   patient int,
   doctor int,
-  visit_type text,
+  visit_type varchar(300),
   primary key(id)
 );
 `;
