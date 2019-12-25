@@ -112,6 +112,9 @@ router.delete('/doctors', function(req, res, next) {
 
 /* Get list of appointments */
 router.get('/appointments', function(req, res, next) {
+  db.query('select * from appointments', (err, results, fields) => {
+    res.send(results);
+  });
 });
 
 /* Delete an existing appointment */
@@ -136,6 +139,38 @@ router.post('/appointments', function(req, res, next) {
   } else {
     res.send('failed');
   }
+});
+
+/* Patients Model
+    id: int,
+    first_name: string,
+    last_name: string
+*/
+
+/* Get list of all patients */
+router.get('/patients', function(req, res, next) {
+  db.query('select * from patients', (err, results, fields) => {
+    res.send(results);
+  });
+});
+
+/* Create Patient's Name */
+router.post('/patients', function(req, res, next) {
+  const firstName = req.body['firstName'];
+  const lastName = req.body['lastName'];
+
+  /* Check if body param is not empty */
+  if(!firstName || !lastName) {
+    res.send("first-name or last-name cannot be empty");
+  }
+
+  /* Insert name into db */
+  db.query(`INSERT INTO patients(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
+    if(err)
+      res.send(err);
+
+    res.status(201).send("Resource created");
+  });
 });
 
 /* Testing */

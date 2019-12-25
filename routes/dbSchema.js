@@ -13,7 +13,11 @@ create table doctors(
   primary key(id)
 );
 
+<<<<<<< HEAD
 create table patient(
+=======
+create table patients(
+>>>>>>> implement get all patients, post new patient. implement get appointments
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
