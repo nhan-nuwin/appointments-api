@@ -110,11 +110,12 @@ router.delete('/doctors', function(req, res, next) {
     visitType: string | "New Patient" , "Follow Up"
 */
 
-/* Get list of appointments for given date */
+/* Get list of appointments for a doctor on a given date */
 router.get('/appointments', function(req, res, next) {
   const date = req.body['date'];
+  const doctor = req.body['doctor'];
 
-  db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day`, (err, results, fields) => {
+  db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
     res.send(results);
   });
 });
