@@ -133,10 +133,28 @@ router.delete('/appointments/:id', function(req, res, next) {
 router.post('/appointments', function(req, res, next) {
   const {date, patient, doctor, visitType} = req.body;
 
-  if(date && patient && doctor && visitType) {
+  const dateObj = new Date(date);
+  const interval = 15;
+  const appointmentIsOnInterval = dateObj.getMinutes() % interval == 0;
+
+
+  if ((date && patient && doctor && visitType) &&
+    appointmentIsOnInterval
+  ) {
+    console.log(date);
+    const appointmentsByDate = `select count(*) from appointments where date = '${date}' and doctor = ${doctor}`;
     const stmt = `INSERT INTO appointments(date, patient, doctor, visit_type) VALUES('${date}', ${patient}, ${doctor}, '${visitType}')`;
-    db.query(stmt, (err, results, fields) => {
-      res.send(results);
+
+    db.query(appointmentsByDate, (err2, results2, fields2) => {
+      console.log(err2);
+      const numRows = JSON.parse(JSON.stringify(results2))[0]['count(*)'];
+      if (numRows < 3) {
+        db.query(stmt, (err, results, fields) => {
+          res.send(results);
+        });
+      } else {
+        res.send('failed');
+      }
     });
   } else {
     res.send('failed');
