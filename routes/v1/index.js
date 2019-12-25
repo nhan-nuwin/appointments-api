@@ -126,7 +126,6 @@ router.post('/appointments', function(req, res, next) {
   const interval = 15;
   const appointmentIsOnInterval = dateObj.getMinutes() % interval == 0;
 
-
   if ((date && patient && doctor && visitType) &&
     appointmentIsOnInterval
   ) {
