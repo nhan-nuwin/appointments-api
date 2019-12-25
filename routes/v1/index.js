@@ -131,15 +131,22 @@ router.post('/appointments', function(req, res, next) {
     appointmentIsOnInterval
   ) {
     console.log(date);
-    const appointmentsByDate = `select count(*) from appointments where date = '${date}' and doctor = ${doctor}`;
+    const appointmentsForDoctor = `select count(*) from appointments where date = '${date}' and doctor = ${doctor}`;
+    const appointmentsForPatient = `select count(*) from appointments where date = '${date}' and patient = ${patient}`;
     const stmt = `INSERT INTO appointments(date, patient, doctor, visit_type) VALUES('${date}', ${patient}, ${doctor}, '${visitType}')`;
 
-    db.query(appointmentsByDate, (err2, results2, fields2) => {
-      console.log(err2);
+    db.query(appointmentsForDoctor, (err2, results2, fields2) => {
       const numRows = JSON.parse(JSON.stringify(results2))[0]['count(*)'];
       if (numRows < 3) {
-        db.query(stmt, (err, results, fields) => {
-          res.send(results);
+        db.query(appointmentsForPatient, (err3, results3, fields3) => {
+          const numRows2 = JSON.parse(JSON.stringify(results3))[0]['count(*)'];
+          if (numRows2 < 1) {
+            db.query(stmt, (err, results, fields) => {
+              res.send(results);
+            });
+          } else {
+            res.send('failed');
+          }
         });
       } else {
         res.send('failed');
