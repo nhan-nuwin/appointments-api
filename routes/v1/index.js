@@ -42,7 +42,8 @@ router.post('/doctors', function(req, res, next) {
   /* Insert name into db */
   db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
     if(err) {
-      console.log()
+      console.log(err);
+      return;
     }
 
     res.status(201).send("Resource created");
