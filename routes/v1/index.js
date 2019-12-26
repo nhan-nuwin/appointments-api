@@ -37,14 +37,12 @@ router.post('/doctors', function(req, res, next) {
   /* Check if body param is not empty */
   if(!firstName || !lastName) {
     res.send("first-name or last-name cannot be empty");
-    return;
   }
 
   /* Insert name into db */
   db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
     if(err) {
-      res.send(err);
-      return;
+      console.log()
     }
 
     res.status(201).send("Resource created");
@@ -60,20 +58,19 @@ router.put('/doctors/:id', function(req, res, next) {
   /* Check if body param is not empty */
   if(!firstName || !lastName) {
     res.send("first-name or last-name cannot be empty");
-    return;
   }
 
   /* Check if resource exists */
   db.query(`SELECT id FROM doctors WHERE id = ${id}`, (err, results, fields) => {
     if(err) {
-      res.send(err);
+      console.log(err);
       return;
     }
 
     if(results.length > 0) {
       db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
         if(err) {
-          res.send(err);
+          console.log(err);
           return;
         }
 
