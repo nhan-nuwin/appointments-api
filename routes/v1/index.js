@@ -136,20 +136,18 @@ router.post('/appointments', function(req, res, next) {
   const interval = 15;
   const appointmentIsOnInterval = dateObj.getMinutes() % interval == 0;
 
-  if ((date && patient && doctor && visitType) &&
-    appointmentIsOnInterval
-  ) {
+  if ((date && patient && doctor && visitType) && appointmentIsOnInterval) {
     console.log(date);
-    const appointmentsForDoctor = `select count(*) from appointments where date = '${date}' and doctor = ${doctor}`;
-    const appointmentsForPatient = `select count(*) from appointments where date = '${date}' and patient = ${patient}`;
+    const appointmentsForDoctor = `SELECT COUNT(*) AS count FROM appointments WHERE date = '${date}' AND doctor = ${doctor}`;
+    const appointmentsForPatient = `SELECT COUNT(*) AS count FROM appointments WHERE date = '${date}' AND patient = ${patient}`;
     const stmt = `INSERT INTO appointments(date, patient, doctor, visit_type) VALUES('${date}', ${patient}, ${doctor}, '${visitType}')`;
 
-    db.query(appointmentsForDoctor, (err2, results2, fields2) => {
-      const numRows = JSON.parse(JSON.stringify(results2))[0]['count(*)'];
+    db.query(appointmentsForDoctor, (err, results, fields) => {
+      let numRows = results[0].count;
       if (numRows < 3) {
-        db.query(appointmentsForPatient, (err3, results3, fields3) => {
-          const numRows2 = JSON.parse(JSON.stringify(results3))[0]['count(*)'];
-          if (numRows2 < 1) {
+        db.query(appointmentsForPatient, (err, results, fields) => {
+          numRows = results[0].count;
+          if (numRows < 1) {
             db.query(stmt, (err, results, fields) => {
               res.send(results);
             });
