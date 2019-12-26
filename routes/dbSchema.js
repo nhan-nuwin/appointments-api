@@ -26,7 +26,7 @@ create table appointments(
   created timestamp,
   patient int,
   doctor int,
-  visit_type text,
+  visit_type varchar(300),
   primary key(id)
 );
 `;

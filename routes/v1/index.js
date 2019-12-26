@@ -41,8 +41,10 @@ router.post('/doctors', function(req, res, next) {
 
   /* Insert name into db */
   db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err)
-      res.send(err);
+    if(err) {
+      console.log(err);
+      return;
+    }
 
     res.status(201).send("Resource created");
   }); 
@@ -61,13 +63,17 @@ router.put('/doctors/:id', function(req, res, next) {
 
   /* Check if resource exists */
   db.query(`SELECT id FROM doctors WHERE id = ${id}`, (err, results, fields) => {
-    if(err)
-      res.send(err);
-    
+    if(err) {
+      console.log(err);
+      return;
+    }
+
     if(results.length > 0) {
       db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
-        if(err)
-          res.send(err);
+        if(err) {
+          console.log(err);
+          return;
+        }
 
         res.status(200).send('Resource updated');
       });
@@ -81,8 +87,11 @@ router.delete('/doctors', function(req, res, next) {
   
   if(id) {
     db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
-      if(err)
+      if(err) {
         console.log(err);
+        return;
+      }
+      
       res.send(results);
     });
   } else {
@@ -191,8 +200,12 @@ router.post('/patients', function(req, res, next) {
 
 /* Testing */
 router.get('/test', function(req, res, next) {
-  console.log(req.query);
 });
 
+router.post('/test', (req, res, next) => {
+  if(req.body){
+    res.send('hi');
+  }
+});
 
 module.exports = router;
