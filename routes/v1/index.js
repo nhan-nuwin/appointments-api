@@ -170,9 +170,12 @@ router.post('/appointments', function(req, res, next) {
     last_name: string
 */
 
-/* Get list of all patients */
+/* Get patient matching name */
 router.get('/patients', function(req, res, next) {
-  db.query('select * from patients', (err, results, fields) => {
+  const firstName = req.query['first_name'];
+  const lastName = req.query['last_name'];
+
+  db.query(`select * from patients where first_name = ${firstName} and last_name = ${lastName}`, (err, results, fields) => {
     res.send(results);
   });
 });
