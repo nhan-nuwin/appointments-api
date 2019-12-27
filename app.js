@@ -39,10 +39,6 @@ app.use(function(err, req, res, next) {
   res.send(res.locals.message);
 });
 
-<<<<<<< HEAD
-app.listen(3000);
-=======
 //app.listen(3000);
->>>>>>> 65db02530f7383c73723ad931f14e475a880f0aa
 
 module.exports = app;
