@@ -175,12 +175,12 @@ router.get('/patients', function(req, res, next) {
   const firstName = req.query['first_name'];
   const lastName = req.query['last_name'];
 
-  db.query(`select * from patients where first_name = ${firstName} and last_name = ${lastName}`, (err, results, fields) => {
+  db.query(`select * from patients where first_name = '${firstName}' and last_name = '${lastName}'`, (err, results, fields) => {
     res.send(results);
   });
 });
 
-/* Get name of specific patient */
+/* Get patient by id */
 router.get('/patients/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from patients where id = ${id}`, (err, results, field) => {
