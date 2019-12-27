@@ -177,6 +177,19 @@ router.get('/patients', function(req, res, next) {
   });
 });
 
+/* Get name of specific patient */
+router.get('/patients/:id', function(req, res, next) {
+  const id = req.params.id;
+  db.query(`select * from patients where id = ${id}`, (err, results, field) => {
+    if(results.length < 1) {
+      res.status = 404;
+      res.send('404 Not Found')
+    } else {
+      res.send(results);
+    }
+  });
+});
+
 /* Create Patient's Name */
 router.post('/patients', function(req, res, next) {
   const firstName = req.body['firstName'];
