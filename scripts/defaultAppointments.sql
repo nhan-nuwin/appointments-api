@@ -3,21 +3,21 @@ create database appointments;
 
 use appointments;
 
-create table if not exists doctors(
+create table doctors(
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists patients(
+create table patients(
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists appointments(
+create table appointments(
   id int auto_increment,
   date datetime,
   created timestamp,
