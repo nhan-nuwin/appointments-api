@@ -1,7 +1,7 @@
 drop database if exists appointments;
 create database appointments;
 
-use appointment;
+use appointments;
 
 create table if not exists doctors(
   id int auto_increment,
