@@ -3,21 +3,21 @@ create database appointment;
 
 use appointment;
 
-create table if not exists doctor(
+create table if not exists doctors(
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists patient(
+create table if not exists patients(
   id int auto_increment,
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists appointment(
+create table if not exists appointments(
   id int auto_increment,
   date datetime,
   created timestamp,
@@ -27,7 +27,7 @@ create table if not exists appointment(
   primary key(id)
 );
 
-insert into patient(first_name, last_name) values
+insert into patients(first_name, last_name) values
 ('George', 'Smith'),
 ('Sally', 'Hoffman'),
 ('Elizabeth', 'Johnson'),
@@ -39,13 +39,13 @@ insert into patient(first_name, last_name) values
 ('Chris', 'Evans'),
 ('Stephanie', 'Chang');
 
-insert into doctor(first_name, last_name) values
+insert into doctors(first_name, last_name) values
 ('Chris', 'Evans'),
 ('Robert', 'Mueller'),
 ('Sarah', 'Conner');
 
 insert into 
-appointment(created, date, doctor, patient, visit_type) values 
+appointments(created, date, doctor, patient, visit_type) values 
 (NOW(),'2019-12-20 08:00:00', 1,1,'New Patient'),
 (NOW(),'2019-12-21 08:45:00', 1,4,'New Patient'),
 (NOW(),'2019-12-20 09:30:00', 1,2,'Follow Up'),
