@@ -1,5 +1,5 @@
-drop database if exists appointment;
-create database appointment;
+drop database if exists appointments;
+create database appointments;
 
 use appointment;
 
