@@ -11,6 +11,7 @@ var db = require('../db');
 
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
+  console.log('doctors')
   db.query('select * from doctors', (err, results, fields) => {
     res.send(results);
   });
@@ -110,6 +111,7 @@ router.delete('/doctors', function(req, res, next) {
 
 /* Get list of appointments for a doctor on a given date */
 router.get('/appointments', function(req, res, next) {
+  console.log('hello')
   const date = req.query['date'];
   const doctor = req.query['doctor'];
 
