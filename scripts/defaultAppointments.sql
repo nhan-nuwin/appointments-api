@@ -4,21 +4,21 @@ create database appointments;
 use appointments;
 
 create table doctors(
-  id int auto_increment,
+  id int identity(1, 1),
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
 create table patients(
-  id int auto_increment,
+  id int identity(1, 1),
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
 create table appointments(
-  id int auto_increment,
+  id int identity(1, 1),
   date datetime,
   created timestamp,
   patient int,
