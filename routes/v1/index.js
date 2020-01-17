@@ -113,7 +113,20 @@ router.delete('/doctors', function(req, res, next) {
 router.get('/appointments', function(req, res, next) {
   // If there are no query params, return all appointments
   if(Object.keys(req.query).length === 0) {
-    db.query(`select * from appointments`, (err, results, fields) => {
+    const stmt = 
+      `SELECT 
+        A.id as id,
+        A.date as appointment_date, 
+        P.first_name as patient_first_name, 
+        P.last_name as patient_last_name,
+        D.first_name as doctor_first_name,
+        D.last_name as doctor_last_name,
+        A.visit_type as visit_type
+      FROM appointments A 
+      INNER JOIN patients P ON A.patient = P.id 
+      INNER JOIN doctors D ON A.doctor = D.id;`;
+      
+    db.query(stmt, (err, results, fields) => {
       res.send(results);
     });
   } else {
