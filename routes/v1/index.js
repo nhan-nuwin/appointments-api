@@ -110,12 +110,36 @@ router.delete('/doctors', function(req, res, next) {
 
 /* Get list of appointments for a doctor on a given date */
 router.get('/appointments', function(req, res, next) {
-  const date = req.query['date'];
-  const doctor = req.query['doctor'];
+  // If there are no query params, return all appointments
+  if(Object.keys(req.query).length === 0) {
+    db.query(`select * from appointments`, (err, results, fields) => {
+      res.send(results);
+    });
+  } else {
+    // Appointments filter by date
+    if(typeof req.query.doctor === 'undefined') {
+      const date = req.query['date'];
 
-  db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
-    res.send(results);
-  });
+      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day`, (err, results, fields) => {
+        res.send(results);
+      });
+    // Appointments filter by doctor id
+    } else if(typeof req.query.date === 'undefined') {
+      const doctor = req.query['doctor'];
+
+      db.query(`select * from appointments where doctor = ${doctor}`, (err, results, fields) => {
+        res.send(results);
+      });
+    // Appointments filter by date and doctor id
+    } else {
+      const date = req.query['date'];
+      const doctor = req.query['doctor'];
+
+      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
+        res.send(results);
+      });
+    }
+  }
 });
 
 /* Delete an existing appointment */
