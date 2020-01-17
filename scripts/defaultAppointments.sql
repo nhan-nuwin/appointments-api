@@ -3,22 +3,22 @@ create database appointments;
 
 use appointments;
 
-create table if not exists doctors(
-  id int auto_increment,
+create table doctors(
+  id int identity(1, 1),
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists patients(
-  id int auto_increment,
+create table patients(
+  id int identity(1, 1),
   first_name varchar(100),
   last_name varchar(100),
   primary key(id)
 );
 
-create table if not exists appointments(
-  id int auto_increment,
+create table appointments(
+  id int identity(1, 1),
   date datetime,
   created timestamp,
   patient int,

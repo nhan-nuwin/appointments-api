@@ -11,6 +11,7 @@ var db = require('../db');
 
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
+  console.log('doctors')
   db.query('select * from doctors', (err, results, fields) => {
     res.send(results);
   });
