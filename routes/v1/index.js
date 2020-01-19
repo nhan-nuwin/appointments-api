@@ -1,18 +1,20 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-var db = require('../db');
+var db = require('../../db');
 
 /* Doctors Model                  
     id: int,
     first_name: string,
     last_name: string
 */
-
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
-  console.log('doctors')
+  console.log(process.env.DB_HOST);
   db.query('select * from doctors', (err, results, fields) => {
+    if(err) {
+      console.log(err);
+    }
     res.send(results);
   });
 });
