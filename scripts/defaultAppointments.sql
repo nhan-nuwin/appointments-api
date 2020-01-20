@@ -28,8 +28,8 @@ create table appointments(
 );
 
 insert into doctors(first_name, last_name) values
-('Tyrion', 'Lannister'),
-('Davos', 'Seaworth'),
-('Ramsay', 'Bolton'),
-('Arya', 'Stark'),
-('Joffrey', 'Baratheon');
+('Rick', 'Sanchez'),
+('Summer', 'Smith'),
+('Steve', 'Harrington'),
+('Nancy', 'Wheeler'),
+('Michael', 'Scott');

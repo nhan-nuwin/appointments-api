@@ -14,6 +14,7 @@ router.get('/doctors', function(req, res, next) {
   db.query('select * from doctors', (err, results, fields) => {
     if(err) {
       console.log(err);
+      return;
     }
     res.send(results);
   });
@@ -23,6 +24,11 @@ router.get('/doctors', function(req, res, next) {
 router.get('/doctors/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
     if(results.length < 1) {
       res.status = 404;
       res.send('404 Not Found')
@@ -129,6 +135,10 @@ router.get('/appointments', function(req, res, next) {
       INNER JOIN doctors D ON A.doctor = D.id;`;
       
     db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        return;
+      }
       res.send(results);
     });
   } else {
@@ -137,6 +147,10 @@ router.get('/appointments', function(req, res, next) {
       const date = req.query['date'];
 
       db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day`, (err, results, fields) => {
+        if(err) {
+          console.log(err);
+          return;
+        }
         res.send(results);
       });
     // Appointments filter by doctor id
@@ -144,6 +158,10 @@ router.get('/appointments', function(req, res, next) {
       const doctor = req.query['doctor'];
 
       db.query(`select * from appointments where doctor = ${doctor}`, (err, results, fields) => {
+        if(err) {
+          console.log(err);
+          return;
+        }
         res.send(results);
       });
     // Appointments filter by date and doctor id
@@ -152,6 +170,10 @@ router.get('/appointments', function(req, res, next) {
       const doctor = req.query['doctor'];
 
       db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
+        if(err) {
+          console.log(err);
+          return;
+        }
         res.send(results);
       });
     }
@@ -164,6 +186,10 @@ router.delete('/appointments/:id', function(req, res, next) {
 
   const stmt = `DELETE FROM appointments WHERE id = ${id}`;
   db.query(stmt, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     res.send(results);
   });
 });
@@ -186,9 +212,17 @@ router.post('/appointments', function(req, res, next) {
       let numRows = results[0].count;
       if (numRows < 3) {
         db.query(appointmentsForPatient, (err, results, fields) => {
+          if(err) {
+            console.log(err);
+            return;
+          }
           numRows = results[0].count;
           if (numRows < 1) {
             db.query(stmt, (err, results, fields) => {
+              if(err) {
+                console.log(err);
+                return;
+              }
               res.send(results);
             });
           } else {
@@ -216,6 +250,10 @@ router.get('/patients', function(req, res, next) {
   const lastName = req.query['last_name'];
 
   db.query(`select * from patients where first_name = '${firstName}' and last_name = '${lastName}'`, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     res.send(results);
   });
 });
@@ -224,6 +262,10 @@ router.get('/patients', function(req, res, next) {
 router.get('/patients/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from patients where id = ${id}`, (err, results, field) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     if(results.length < 1) {
       res.status = 404;
       res.send('404 Not Found')
@@ -245,8 +287,10 @@ router.post('/patients', function(req, res, next) {
 
   /* Insert name into db */
   db.query(`INSERT INTO patients(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err)
-      res.send(err);
+    if(err) {
+      console.log(err);
+      return;
+    }
 
     res.status(201).send("Resource created");
   });
