@@ -117,14 +117,15 @@ router.delete('/doctors', function(req, res, next) {
     visitType: string | "New Patient" , "Follow Up"
 */
 
-/* Get list of appointments for a doctor on a given date */
+/* Get appointments */
 router.get('/appointments', function(req, res, next) {
   // If there are no query params, return all appointments
+  let stmt = '';
   if(Object.keys(req.query).length === 0) {
-    const stmt = 
+    stmt = 
       `SELECT 
         A.id as id,
-        A.date as appointment_date, 
+        A.date as date, 
         P.first_name as patient_first_name, 
         P.last_name as patient_last_name,
         D.first_name as doctor_first_name,
@@ -133,51 +134,63 @@ router.get('/appointments', function(req, res, next) {
       FROM appointments A 
       INNER JOIN patients P ON A.patient = P.id 
       INNER JOIN doctors D ON A.doctor = D.id;`;
-      
-    db.query(stmt, (err, results, fields) => {
-      if(err) {
-        console.log(err);
-        return;
-      }
-      res.send(results);
-    });
   } else {
-    // Appointments filter by date
+    // Get appointments by date
     if(typeof req.query.doctor === 'undefined') {
       const date = req.query['date'];
-
-      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day`, (err, results, fields) => {
-        if(err) {
-          console.log(err);
-          return;
-        }
-        res.send(results);
-      });
-    // Appointments filter by doctor id
+      stmt = 
+        `SELECT 
+          A.id as id,
+          A.date as date, 
+          P.first_name as patient_first_name, 
+          P.last_name as patient_last_name,
+          D.first_name as doctor_first_name,
+          D.last_name as doctor_last_name,
+          A.visit_type as visit_type
+        FROM appointments A 
+        INNER JOIN patients P ON A.patient = P.id 
+        INNER JOIN doctors D ON A.doctor = D.id
+        WHERE CAST(date as DATE) = '${date}'`;
+    // Get appointments by doctor
     } else if(typeof req.query.date === 'undefined') {
       const doctor = req.query['doctor'];
-
-      db.query(`select * from appointments where doctor = ${doctor}`, (err, results, fields) => {
-        if(err) {
-          console.log(err);
-          return;
-        }
-        res.send(results);
-      });
-    // Appointments filter by date and doctor id
+      stmt = `SELECT * FROM appointments WHERE doctor = ${doctor}`;
+    // Get appointments by date and doctor
     } else {
       const date = req.query['date'];
       const doctor = req.query['doctor'];
-
-      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
-        if(err) {
-          console.log(err);
-          return;
-        }
-        res.send(results);
-      });
+      stmt = `SELECT * FROM appointments WHERE CAST(date as DATE) = '${date}' AND doctor = ${doctor}`;
     }
   }
+  // Execute query and return results
+  db.query(stmt, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
+    // Convert results to JSON Object
+    results = results.map( each => {
+      // Split date and time
+      let date = moment(each.date).format('YYYY-MM-DD');
+      let time = moment.utc(each.date).format('HH:mm:ss');
+
+      return {
+        id: each.id,
+        date,
+        time,
+        patient: {
+          firstName: each.patient_first_name,
+          lastName: each.patient_last_name
+        },
+        doctor: {
+          firstName: each.doctor_first_name,
+          lastName: each.doctor_last_name
+        },
+        visitType: each.visit_type
+      }
+    });
+    res.send(results);
+  });
 });
 
 /* Delete an existing appointment */
