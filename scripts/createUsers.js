@@ -19,6 +19,5 @@ function createUsers( numOfUser ) {
   }
 }
 
+createUsers(1000);
 module.exports = createUsers;
-
-// createUsers(1000);

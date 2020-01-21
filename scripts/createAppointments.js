@@ -2,6 +2,8 @@ const moment = require('moment');
 const db = require('../db');
 
 /* Create randomized appointments each day for a number amount of days */
+createAppointments(180);
+module.exports = createAppointments;
 function createAppointments(numOfDays) {
   let startDate = moment();
   let endDate = moment().add(numOfDays, 'days');
@@ -101,10 +103,7 @@ function createAppointment({datetime, doctor, patient, visitType}) {
         reject(err);
       }
 
-      resolve();
+      resolve(true);
     });
   });
 }
-
-getAllDoctorNames()
-.then(names => console.log(names));

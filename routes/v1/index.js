@@ -154,12 +154,38 @@ router.get('/appointments', function(req, res, next) {
     // Get appointments by doctor
     } else if(typeof req.query.date === 'undefined') {
       const doctor = req.query['doctor'];
-      stmt = `SELECT * FROM appointments WHERE doctor = ${doctor}`;
+      stmt = 
+        `SELECT 
+          A.id as id,
+          A.date as date, 
+          P.first_name as patient_first_name, 
+          P.last_name as patient_last_name,
+          D.first_name as doctor_first_name,
+          D.last_name as doctor_last_name,
+          A.visit_type as visit_type
+        FROM appointments A 
+        INNER JOIN patients P ON A.patient = P.id 
+        INNER JOIN doctors D ON A.doctor = D.id
+        WHERE A.doctor = '${doctor}'`;
     // Get appointments by date and doctor
     } else {
       const date = req.query['date'];
       const doctor = req.query['doctor'];
-      stmt = `SELECT * FROM appointments WHERE CAST(date as DATE) = '${date}' AND doctor = ${doctor}`;
+      stmt = 
+        `SELECT 
+          A.id as id,
+          A.date as date, 
+          P.first_name as patient_first_name, 
+          P.last_name as patient_last_name,
+          D.first_name as doctor_first_name,
+          D.last_name as doctor_last_name,
+          A.visit_type as visit_type
+        FROM appointments A 
+        INNER JOIN patients P ON A.patient = P.id 
+        INNER JOIN doctors D ON A.doctor = D.id
+        WHERE CAST(date as DATE) = '${date}' 
+        AND
+        A.doctor = '${doctor}'`;
     }
   }
   // Execute query and return results
