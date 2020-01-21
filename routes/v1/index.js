@@ -1,18 +1,21 @@
 var express = require('express');
 var router = express.Router();
 var moment = require('moment');
-var db = require('../db');
+var db = require('../../db');
 
 /* Doctors Model                  
     id: int,
     first_name: string,
     last_name: string
 */
-
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
-  console.log('doctors')
+  console.log(process.env.DB_HOST);
   db.query('select * from doctors', (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     res.send(results);
   });
 });
@@ -21,6 +24,11 @@ router.get('/doctors', function(req, res, next) {
 router.get('/doctors/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
     if(results.length < 1) {
       res.status = 404;
       res.send('404 Not Found')
@@ -109,38 +117,80 @@ router.delete('/doctors', function(req, res, next) {
     visitType: string | "New Patient" , "Follow Up"
 */
 
-/* Get list of appointments for a doctor on a given date */
+/* Get appointments */
 router.get('/appointments', function(req, res, next) {
   // If there are no query params, return all appointments
+  let stmt = '';
   if(Object.keys(req.query).length === 0) {
-    db.query(`select * from appointments`, (err, results, fields) => {
-      res.send(results);
-    });
+    stmt = 
+      `SELECT 
+        A.id as id,
+        A.date as date, 
+        P.first_name as patient_first_name, 
+        P.last_name as patient_last_name,
+        D.first_name as doctor_first_name,
+        D.last_name as doctor_last_name,
+        A.visit_type as visit_type
+      FROM appointments A 
+      INNER JOIN patients P ON A.patient = P.id 
+      INNER JOIN doctors D ON A.doctor = D.id;`;
   } else {
-    // Appointments filter by date
+    // Get appointments by date
     if(typeof req.query.doctor === 'undefined') {
       const date = req.query['date'];
-
-      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day`, (err, results, fields) => {
-        res.send(results);
-      });
-    // Appointments filter by doctor id
+      stmt = 
+        `SELECT 
+          A.id as id,
+          A.date as date, 
+          P.first_name as patient_first_name, 
+          P.last_name as patient_last_name,
+          D.first_name as doctor_first_name,
+          D.last_name as doctor_last_name,
+          A.visit_type as visit_type
+        FROM appointments A 
+        INNER JOIN patients P ON A.patient = P.id 
+        INNER JOIN doctors D ON A.doctor = D.id
+        WHERE CAST(date as DATE) = '${date}'`;
+    // Get appointments by doctor
     } else if(typeof req.query.date === 'undefined') {
       const doctor = req.query['doctor'];
-
-      db.query(`select * from appointments where doctor = ${doctor}`, (err, results, fields) => {
-        res.send(results);
-      });
-    // Appointments filter by date and doctor id
+      stmt = `SELECT * FROM appointments WHERE doctor = ${doctor}`;
+    // Get appointments by date and doctor
     } else {
       const date = req.query['date'];
       const doctor = req.query['doctor'];
-
-      db.query(`select * from appointments where date >= '${date}' and date < '${date}' + interval 1 day and doctor = ${doctor}`, (err, results, fields) => {
-        res.send(results);
-      });
+      stmt = `SELECT * FROM appointments WHERE CAST(date as DATE) = '${date}' AND doctor = ${doctor}`;
     }
   }
+  // Execute query and return results
+  db.query(stmt, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
+    // Convert results to JSON Object
+    results = results.map( each => {
+      // Split date and time
+      let date = moment(each.date).format('YYYY-MM-DD');
+      let time = moment.utc(each.date).format('HH:mm:ss');
+
+      return {
+        id: each.id,
+        date,
+        time,
+        patient: {
+          firstName: each.patient_first_name,
+          lastName: each.patient_last_name
+        },
+        doctor: {
+          firstName: each.doctor_first_name,
+          lastName: each.doctor_last_name
+        },
+        visitType: each.visit_type
+      }
+    });
+    res.send(results);
+  });
 });
 
 /* Delete an existing appointment */
@@ -149,6 +199,10 @@ router.delete('/appointments/:id', function(req, res, next) {
 
   const stmt = `DELETE FROM appointments WHERE id = ${id}`;
   db.query(stmt, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     res.send(results);
   });
 });
@@ -171,9 +225,17 @@ router.post('/appointments', function(req, res, next) {
       let numRows = results[0].count;
       if (numRows < 3) {
         db.query(appointmentsForPatient, (err, results, fields) => {
+          if(err) {
+            console.log(err);
+            return;
+          }
           numRows = results[0].count;
           if (numRows < 1) {
             db.query(stmt, (err, results, fields) => {
+              if(err) {
+                console.log(err);
+                return;
+              }
               res.send(results);
             });
           } else {
@@ -201,6 +263,10 @@ router.get('/patients', function(req, res, next) {
   const lastName = req.query['last_name'];
 
   db.query(`select * from patients where first_name = '${firstName}' and last_name = '${lastName}'`, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     res.send(results);
   });
 });
@@ -209,6 +275,10 @@ router.get('/patients', function(req, res, next) {
 router.get('/patients/:id', function(req, res, next) {
   const id = req.params.id;
   db.query(`select * from patients where id = ${id}`, (err, results, field) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
     if(results.length < 1) {
       res.status = 404;
       res.send('404 Not Found')
@@ -230,8 +300,10 @@ router.post('/patients', function(req, res, next) {
 
   /* Insert name into db */
   db.query(`INSERT INTO patients(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err)
-      res.send(err);
+    if(err) {
+      console.log(err);
+      return;
+    }
 
     res.status(201).send("Resource created");
   });
