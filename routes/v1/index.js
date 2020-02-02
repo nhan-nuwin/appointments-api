@@ -1,16 +1,10 @@
-var express = require('express');
-var router = express.Router();
-var moment = require('moment');
-var db = require('../../db');
+const express = require('express');
+const router = express.Router();
+const moment = require('moment');
+const db = require('../../db');
 
-/* Doctors Model                  
-    id: int,
-    first_name: string,
-    last_name: string
-*/
 /* Get list of all doctors */
 router.get('/doctors', function(req, res, next) {
-  console.log(process.env.DB_HOST);
   db.query('select * from doctors', (err, results, fields) => {
     if(err) {
       console.log(err);
@@ -28,7 +22,7 @@ router.get('/doctors/:id', function(req, res, next) {
       console.log(err);
       return;
     }
-
+    
     if(results.length < 1) {
       res.status = 404;
       res.send('404 Not Found')
@@ -107,15 +101,6 @@ router.delete('/doctors', function(req, res, next) {
     res.send('Failed');
   }
 });
-
-/* Appointments
-    id: int,
-    created: timestamp,
-    date: datetime,
-    patient : id int
-    doctor: id int,
-    visitType: string | "New Patient" , "Follow Up"
-*/
 
 /* Get appointments */
 router.get('/appointments', function(req, res, next) {
@@ -277,12 +262,6 @@ router.post('/appointments', function(req, res, next) {
   }
 });
 
-/* Patients Model
-    id: int,
-    first_name: string,
-    last_name: string
-*/
-
 /* Get patient matching name */
 router.get('/patients', function(req, res, next) {
   const firstName = req.query['first_name'];
@@ -333,16 +312,6 @@ router.post('/patients', function(req, res, next) {
 
     res.status(201).send("Resource created");
   });
-});
-
-/* Testing */
-router.get('/test', function(req, res, next) {
-});
-
-router.post('/test', (req, res, next) => {
-  if(req.body){
-    res.send('hi');
-  }
 });
 
 module.exports = router;
