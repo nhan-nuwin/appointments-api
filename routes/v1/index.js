@@ -56,6 +56,7 @@ router.post('/doctors', function(req, res, next) {
         console.log(err);
         next();
       }
+      console.log(results);
       const rowId = results.insertId;
       res.location(`/doctors/${rowId}`);
       res.send(204);
@@ -243,7 +244,10 @@ router.get('/appointments', function(req, res, next) {
   });
 });
 
-/* Delete an existing appointment */
+/**
+ *  Delete an existing appointment @DELETE /appointments/:id
+ *  @param {id: int}
+ */ 
 router.delete('/appointments/:id', function(req, res, next) {
   const id = Number(req.params.id);
   if(id) {
@@ -251,7 +255,7 @@ router.delete('/appointments/:id', function(req, res, next) {
     db.query(stmt, (err, results, fields) => {
       if(err) {
         console.log(err);
-        return;
+        next();
       }
       if(results.affectedRows) {
         res.location(`/appointments/${id}`);
@@ -285,14 +289,14 @@ router.post('/appointments', function(req, res, next) {
         db.query(appointmentsForPatient, (err, results, fields) => {
           if(err) {
             console.log(err);
-            return;
+            next();
           }
           numRows = results[0].count;
           if (numRows < 1) {
             db.query(stmt, (err, results, fields) => {
               if(err) {
                 console.log(err);
-                return;
+                next();
               }
               res.send(results);
             });
