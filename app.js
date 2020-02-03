@@ -21,6 +21,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors());
+app.set('json spaces', 2); //Pretty Print
 app.use('/', mainRouter);
 
 // catch 404 and forward to error handler

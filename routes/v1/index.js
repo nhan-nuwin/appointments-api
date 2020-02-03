@@ -1,126 +1,151 @@
-var express = require('express');
-var router = express.Router();
-var moment = require('moment');
-var db = require('../../db');
+const express = require('express');
+const router = express.Router();
+const moment = require('moment');
+const db = require('../../db');
 
-/* Doctors Model                  
-    id: int,
-    first_name: string,
-    last_name: string
-*/
-/* Get list of all doctors */
+/**
+ * Get all doctors @GET /doctors
+ * @param {undefined}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.get('/doctors', function(req, res, next) {
-  console.log(process.env.DB_HOST);
-  db.query('select * from doctors', (err, results, fields) => {
+  const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors`;
+  db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
     res.send(results);
   });
 });
 
-/* Get name of specific doctor */
+/**
+ * Get a specific doctor @GET /doctors/:id
+ * @param {int} id
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.get('/doctors/:id', function(req, res, next) {
-  const id = req.params.id;
-  db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    if(results.length < 1) {
-      res.status = 404;
-      res.send('404 Not Found')
-    } else {
+  const id = Number(req.params.id);
+  if(id) {
+    const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors WHERE id = ${id}`;
+    db.query(stmt, (err, results, field) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
       res.send(results);
-    }
-  });
+    });
+  } else {
+    res.send(400);
+  } 
 });
 
-/* Create Doctor's Name */
+/**
+ * Create a doctor resource @POST /doctors
+ * @param {firstName: string, lastName:string}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.post('/doctors', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
 
-  /* Check if body param is not empty */
-  if(!firstName || !lastName) {
-    res.send("first-name or last-name cannot be empty");
+  if(firstName && lastName) {
+    const stmt = `INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}');`
+    db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      console.log(results);
+      const rowId = results.insertId;
+      res.location(`/doctors/${rowId}`);
+      res.send(204);
+    }); 
+  } else {
+    const error = {"error":{"message":"Invalid params"}}
+    res.status(400).json(error);
   }
-
-  /* Insert name into db */
-  db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    res.status(201).send("Resource created");
-  }); 
 });
 
-/* Update Doctor's Name */
+/**
+ * Update doctor @PUT /doctors/:id
+ * @param {int} id
+ * @param {firstName: string, lastName:string}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.put('/doctors/:id', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
-  const id = req.params.id;
+  const id = Number(req.params.id);
 
-  /* Check if body param is not empty */
-  if(!firstName || !lastName) {
-    res.send("first-name or last-name cannot be empty");
-  }
-
-  /* Check if resource exists */
-  db.query(`SELECT id FROM doctors WHERE id = ${id}`, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    if(results.length > 0) {
-      db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
-        if(err) {
-          console.log(err);
-          return;
-        }
-
+  if(id && firstName && lastName) {
+    db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      if(results.affectedRows) {
+        res.location(`/doctors/${id}`);
         res.status(200).send('Resource updated');
-      });
-    }
-  });
+      } else {
+        res.status(404).json({error:{message:'Resource not found'}});
+      }
+    });
+  } else {
+    res.status(400).json({error:{message:'Invalid params'}});
+  }
 });
 
-/* Delete Doctor's names */
-router.delete('/doctors', function(req, res, next) {
-  const id = req.query.id;
+/**
+ * Delete doctor @DELETE /doctors/:id
+ * @param {int} id
+ * @returns {string}
+*/ 
+router.delete('/doctors/:id', function(req, res, next) {
+  const id = Number(req.params.id);
   
   if(id) {
     db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
       if(err) {
         console.log(err);
-        return;
+        next();
       }
-      
-      res.send(results);
+      if(results.affectedRows) {
+        res.send(204);
+      } else {
+        res.send(404);
+      }
     });
   } else {
-    res.send('Failed');
+    res.send(400);
   }
 });
 
-/* Appointments
-    id: int,
-    created: timestamp,
-    date: datetime,
-    patient : id int
-    doctor: id int,
-    visitType: string | "New Patient" , "Follow Up"
-*/
-
-/* Get appointments */
+/**
+ * Get all appointments @GET /appointments
+ * @param {undefined} ||
+ * @param {date: string} ||
+ * @param {doctor: int} ||
+ * @param {date: string, doctor: int}
+ * @returns 
+ *  {Array<{
+ *    id: int,
+ *    date: string,
+ *    time: string,
+ *    patient: {
+ *      firstName: string,
+ *      lastName: string
+ *    },
+ *    doctor: {
+ *      firstName: string,
+ *      lastName: string
+ *    },
+ *    visitType: string
+ *  }>}
+*/ 
 router.get('/appointments', function(req, res, next) {
-  // If there are no query params, return all appointments
   let stmt = '';
+  // if no query params are passed, get all appointments
   if(Object.keys(req.query).length === 0) {
     stmt = 
       `SELECT 
@@ -192,7 +217,7 @@ router.get('/appointments', function(req, res, next) {
   db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
     // Convert results to JSON Object
     results = results.map( each => {
@@ -219,18 +244,29 @@ router.get('/appointments', function(req, res, next) {
   });
 });
 
-/* Delete an existing appointment */
+/**
+ *  Delete an existing appointment @DELETE /appointments/:id
+ *  @param {id: int}
+ */ 
 router.delete('/appointments/:id', function(req, res, next) {
-  const id = req.params.id;
-
-  const stmt = `DELETE FROM appointments WHERE id = ${id}`;
-  db.query(stmt, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-    res.send(results);
-  });
+  const id = Number(req.params.id);
+  if(id) {
+    const stmt = `DELETE FROM appointments WHERE id = ${id}`;
+    db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      if(results.affectedRows) {
+        res.location(`/appointments/${id}`);
+        res.send(results);
+      } else {
+        res.send(404);
+      }
+    });
+  } else {
+    res.send(400);
+  }
 });
 
 /* Add new appointments */
@@ -253,14 +289,14 @@ router.post('/appointments', function(req, res, next) {
         db.query(appointmentsForPatient, (err, results, fields) => {
           if(err) {
             console.log(err);
-            return;
+            next();
           }
           numRows = results[0].count;
           if (numRows < 1) {
             db.query(stmt, (err, results, fields) => {
               if(err) {
                 console.log(err);
-                return;
+                next();
               }
               res.send(results);
             });
@@ -276,12 +312,6 @@ router.post('/appointments', function(req, res, next) {
     res.send('failed');
   }
 });
-
-/* Patients Model
-    id: int,
-    first_name: string,
-    last_name: string
-*/
 
 /* Get patient matching name */
 router.get('/patients', function(req, res, next) {
@@ -333,16 +363,6 @@ router.post('/patients', function(req, res, next) {
 
     res.status(201).send("Resource created");
   });
-});
-
-/* Testing */
-router.get('/test', function(req, res, next) {
-});
-
-router.post('/test', (req, res, next) => {
-  if(req.body){
-    res.send('hi');
-  }
 });
 
 module.exports = router;
