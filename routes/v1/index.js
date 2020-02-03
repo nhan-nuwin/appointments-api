@@ -3,9 +3,32 @@ const router = express.Router();
 const moment = require('moment');
 const db = require('../../db');
 
-/* Get list of all doctors */
+/**
+ * Get all doctors @GET /doctors
+ * @param {undefined}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.get('/doctors', function(req, res, next) {
-  db.query('select * from doctors', (err, results, fields) => {
+  const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors`;
+  db.query(stmt, (err, results, fields) => {
+    if(err) {
+      console.log(err);
+      return;
+    }
+
+    res.send(results);
+  });
+});
+
+/**
+ * Get a specific doctor @GET /doctors/:id
+ * @param {int} id
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
+router.get('/doctors/:id', function(req, res, next) {
+  const id = req.params.id;
+  const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors WHERE id = ${id}`;
+  db.query(stmt, (err, results, field) => {
     if(err) {
       console.log(err);
       return;
@@ -15,34 +38,18 @@ router.get('/doctors', function(req, res, next) {
   });
 });
 
-/* Get name of specific doctor */
-router.get('/doctors/:id', function(req, res, next) {
-  const id = req.params.id;
-  db.query(`select * from doctors where id = ${id}`, (err, results, field) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-    
-    if(results.length < 1) {
-      res.status = 404;
-      res.send('404 Not Found')
-    } else {
-      res.send(results);
-    }
-  });
-});
-
-/* Create Doctor's Name */
+/**
+ * Create a doctor resource @POST /doctors
+ * @param {firstName: string, lastName:string}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.post('/doctors', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
 
   if(firstName && lastName) {
-     /* Insert name into db and retrieve ID */
-    db.query(
-      `INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}');
-      `, (err, results, fields) => {
+    const stmt = `INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}');`
+    db.query(stmt, (err, results, fields) => {
       if(err) {
         console.log(err);
         return;
@@ -52,9 +59,11 @@ router.post('/doctors', function(req, res, next) {
       res.location(`/doctors/${rowId}`);
       res.status(201).send("Resource created");
     }); 
+  } else {
+    const error = {"error":{"message":"Invalid parameters"}}
+    res.status(400).json(error);
   }
-
- 
+  
 });
 
 /* Update Doctor's Name */
