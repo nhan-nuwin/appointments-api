@@ -13,9 +13,8 @@ router.get('/doctors', function(req, res, next) {
   db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
-
     res.send(results);
   });
 });
@@ -26,16 +25,19 @@ router.get('/doctors', function(req, res, next) {
  * @returns {Array<{id: int, firstName: string, lastName: string}>}
 */ 
 router.get('/doctors/:id', function(req, res, next) {
-  const id = req.params.id;
-  const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors WHERE id = ${id}`;
-  db.query(stmt, (err, results, field) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-    
-    res.send(results);
-  });
+  const id = Number(req.params.id);
+  if(id) {
+    const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors WHERE id = ${id}`;
+    db.query(stmt, (err, results, field) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      res.send(results);
+    });
+  } else {
+    res.send(400);
+  } 
 });
 
 /**
@@ -52,66 +54,69 @@ router.post('/doctors', function(req, res, next) {
     db.query(stmt, (err, results, fields) => {
       if(err) {
         console.log(err);
-        return;
+        next();
       }
-
       const rowId = results.insertId;
       res.location(`/doctors/${rowId}`);
-      res.status(201).send("Resource created");
+      res.send(204);
     }); 
   } else {
-    const error = {"error":{"message":"Invalid parameters"}}
+    const error = {"error":{"message":"Invalid params"}}
     res.status(400).json(error);
   }
-  
 });
 
-/* Update Doctor's Name */
+/**
+ * Update doctor @PUT /doctors/:id
+ * @param {int} id
+ * @param {firstName: string, lastName:string}
+ * @returns {Array<{id: int, firstName: string, lastName: string}>}
+*/ 
 router.put('/doctors/:id', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
-  const id = req.params.id;
+  const id = Number(req.params.id);
 
-  /* Check if body param is not empty */
-  if(!firstName || !lastName) {
-    res.send("first-name or last-name cannot be empty");
-  }
-
-  /* Check if resource exists */
-  db.query(`SELECT id FROM doctors WHERE id = ${id}`, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    if(results.length > 0) {
-      db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
-        if(err) {
-          console.log(err);
-          return;
-        }
-
+  if(id && firstName && lastName) {
+    db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      if(results.affectedRows) {
+        res.location(`/doctors/${id}`);
         res.status(200).send('Resource updated');
-      });
-    }
-  });
+      } else {
+        res.status(404).json({error:{message:'Resource not found'}});
+      }
+    });
+  } else {
+    res.status(400).json({error:{message:'Invalid params'}});
+  }
 });
 
-/* Delete Doctor's names */
-router.delete('/doctors', function(req, res, next) {
-  const id = req.query.id;
+/**
+ * Delete doctor @DELETE /doctors/:id
+ * @param {int} id
+ * @returns {string}
+*/ 
+router.delete('/doctors/:id', function(req, res, next) {
+  const id = Number(req.params.id);
   
   if(id) {
     db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
       if(err) {
         console.log(err);
-        return;
+        next();
       }
-      
-      res.send(results);
+      if(results.affectedRows) {
+        res.send(204);
+      } else {
+        res.send(404);
+      }
     });
   } else {
-    res.send('Failed');
+    res.send(400);
   }
 });
 
