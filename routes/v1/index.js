@@ -120,10 +120,31 @@ router.delete('/doctors/:id', function(req, res, next) {
   }
 });
 
-/* Get appointments */
+/**
+ * Get all appointments @GET /appointments
+ * @param {undefined} ||
+ * @param {date: string} ||
+ * @param {doctor: int} ||
+ * @param {date: string, doctor: int}
+ * @returns 
+ *  {Array<{
+ *    id: int,
+ *    date: string,
+ *    time: string,
+ *    patient: {
+ *      firstName: string,
+ *      lastName: string
+ *    },
+ *    doctor: {
+ *      firstName: string,
+ *      lastName: string
+ *    },
+ *    visitType: string
+ *  }>}
+*/ 
 router.get('/appointments', function(req, res, next) {
-  // If there are no query params, return all appointments
   let stmt = '';
+  // if no query params are passed, get all appointments
   if(Object.keys(req.query).length === 0) {
     stmt = 
       `SELECT 
@@ -195,7 +216,7 @@ router.get('/appointments', function(req, res, next) {
   db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
     // Convert results to JSON Object
     results = results.map( each => {
@@ -224,16 +245,24 @@ router.get('/appointments', function(req, res, next) {
 
 /* Delete an existing appointment */
 router.delete('/appointments/:id', function(req, res, next) {
-  const id = req.params.id;
-
-  const stmt = `DELETE FROM appointments WHERE id = ${id}`;
-  db.query(stmt, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-    res.send(results);
-  });
+  const id = Number(req.params.id);
+  if(id) {
+    const stmt = `DELETE FROM appointments WHERE id = ${id}`;
+    db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        return;
+      }
+      if(results.affectedRows) {
+        res.location(`/appointments/${id}`);
+        res.send(results);
+      } else {
+        res.send(404);
+      }
+    });
+  } else {
+    res.send(400);
+  }
 });
 
 /* Add new appointments */
