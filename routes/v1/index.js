@@ -10,6 +10,7 @@ router.get('/doctors', function(req, res, next) {
       console.log(err);
       return;
     }
+    
     res.send(results);
   });
 });
@@ -37,20 +38,23 @@ router.post('/doctors', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
 
-  /* Check if body param is not empty */
-  if(!firstName || !lastName) {
-    res.send("first-name or last-name cannot be empty");
+  if(firstName && lastName) {
+     /* Insert name into db and retrieve ID */
+    db.query(
+      `INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}');
+      `, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        return;
+      }
+
+      const rowId = results.insertId;
+      res.location(`/doctors/${rowId}`);
+      res.status(201).send("Resource created");
+    }); 
   }
 
-  /* Insert name into db */
-  db.query(`INSERT INTO doctors(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-
-    res.status(201).send("Resource created");
-  }); 
+ 
 });
 
 /* Update Doctor's Name */

@@ -7,7 +7,8 @@ var connection = mysql.createPool({
   user            : ck.DB_USER,
   password        : ck.DB_PASS,
   database        : 'appointments',
-  timezone: 'utc'
+  timezone: 'utc',
+  multipleStatements: true
 });
 
 module.exports = connection;
