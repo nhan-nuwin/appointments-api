@@ -6,7 +6,7 @@ const db = require('../../db');
 /**
  * Get all doctors @GET /doctors
  * @param {undefined}
- * @returns {Array<{id: int, firstName: string, lastName: string}>}
+ * @next()s {Array<{id: int, firstName: string, lastName: string}>}
 */ 
 router.get('/doctors', function(req, res, next) {
   const stmt = `SELECT id, first_name AS firstName, last_name AS lastName FROM doctors`;
@@ -22,7 +22,7 @@ router.get('/doctors', function(req, res, next) {
 /**
  * Get a specific doctor @GET /doctors/:id
  * @param {int} id
- * @returns {Array<{id: int, firstName: string, lastName: string}>}
+ * @next()s {Array<{id: int, firstName: string, lastName: string}>}
 */ 
 router.get('/doctors/:id', function(req, res, next) {
   const id = Number(req.params.id);
@@ -33,17 +33,22 @@ router.get('/doctors/:id', function(req, res, next) {
         console.log(err);
         next();
       }
-      res.send(results);
+
+      if(results.length > 0) {
+        res.send(results);
+      } else {
+        res.sendStatus(404);
+      }
     });
   } else {
-    res.send(400);
+    res.sendStatus(400);
   } 
 });
 
 /**
  * Create a doctor resource @POST /doctors
  * @param {firstName: string, lastName:string}
- * @returns {Array<{id: int, firstName: string, lastName: string}>}
+ * @next()s {Array<{id: int, firstName: string, lastName: string}>}
 */ 
 router.post('/doctors', function(req, res, next) {
   const firstName = req.body['firstName'];
@@ -59,11 +64,10 @@ router.post('/doctors', function(req, res, next) {
       console.log(results);
       const rowId = results.insertId;
       res.location(`/doctors/${rowId}`);
-      res.send(204);
+      res.sendStatus(204);
     }); 
   } else {
-    const error = {"error":{"message":"Invalid params"}}
-    res.status(400).json(error);
+    res.sendStatus(400);
   }
 });
 
@@ -71,7 +75,7 @@ router.post('/doctors', function(req, res, next) {
  * Update doctor @PUT /doctors/:id
  * @param {int} id
  * @param {firstName: string, lastName:string}
- * @returns {Array<{id: int, firstName: string, lastName: string}>}
+ * @next()s {Array<{id: int, firstName: string, lastName: string}>}
 */ 
 router.put('/doctors/:id', function(req, res, next) {
   const firstName = req.body['firstName'];
@@ -86,20 +90,20 @@ router.put('/doctors/:id', function(req, res, next) {
       }
       if(results.affectedRows) {
         res.location(`/doctors/${id}`);
-        res.status(200).send('Resource updated');
+        res.sendStatus(204);
       } else {
-        res.status(404).json({error:{message:'Resource not found'}});
+        res.sendStatus(404);
       }
     });
   } else {
-    res.status(400).json({error:{message:'Invalid params'}});
+    res.sendStatus(400);
   }
 });
 
 /**
  * Delete doctor @DELETE /doctors/:id
  * @param {int} id
- * @returns {string}
+ * @next()s {string}
 */ 
 router.delete('/doctors/:id', function(req, res, next) {
   const id = Number(req.params.id);
@@ -111,13 +115,13 @@ router.delete('/doctors/:id', function(req, res, next) {
         next();
       }
       if(results.affectedRows) {
-        res.send(204);
+        res.sendStatus(204);
       } else {
-        res.send(404);
+        res.sendStatus(404);
       }
     });
   } else {
-    res.send(400);
+    res.sendStatus(400);
   }
 });
 
@@ -127,7 +131,7 @@ router.delete('/doctors/:id', function(req, res, next) {
  * @param {date: string} ||
  * @param {doctor: int} ||
  * @param {date: string, doctor: int}
- * @returns 
+ * @next()s 
  *  {Array<{
  *    id: int,
  *    date: string,
@@ -213,34 +217,39 @@ router.get('/appointments', function(req, res, next) {
         A.doctor = '${doctor}'`;
     }
   }
-  // Execute query and return results
+  // Execute query and next() results
   db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
       next();
     }
-    // Convert results to JSON Object
-    results = results.map( each => {
-      // Split date and time
-      let date = moment(each.date).format('YYYY-MM-DD');
-      let time = moment.utc(each.date).format('HH:mm:ss');
 
-      return {
-        id: each.id,
-        date,
-        time,
-        patient: {
-          firstName: each.patient_first_name,
-          lastName: each.patient_last_name
-        },
-        doctor: {
-          firstName: each.doctor_first_name,
-          lastName: each.doctor_last_name
-        },
-        visitType: each.visit_type
-      }
-    });
-    res.send(results);
+    if(results.length > 0) {
+      // Convert results to JSON Object
+      results = results.map( each => {
+        // Split date and time
+        let date = moment(each.date).format('YYYY-MM-DD');
+        let time = moment.utc(each.date).format('HH:mm:ss');
+
+        next() {
+          id: each.id,
+          date,
+          time,
+          patient: {
+            firstName: each.patient_first_name,
+            lastName: each.patient_last_name
+          },
+          doctor: {
+            firstName: each.doctor_first_name,
+            lastName: each.doctor_last_name
+          },
+          visitType: each.visit_type
+        }
+      });
+      res.send(results);
+    } else {
+      res.sendStatus(404);
+    }
   });
 });
 
@@ -261,11 +270,11 @@ router.delete('/appointments/:id', function(req, res, next) {
         res.location(`/appointments/${id}`);
         res.send(results);
       } else {
-        res.send(404);
+        res.sendStatus(404);
       }
     });
   } else {
-    res.send(400);
+    res.sendStatus(400);
   }
 });
 
@@ -317,11 +326,16 @@ router.post('/appointments', function(req, res, next) {
 router.get('/patients', function(req, res, next) {
   const firstName = req.query['first_name'];
   const lastName = req.query['last_name'];
-
-  db.query(`select * from patients where first_name = '${firstName}' and last_name = '${lastName}'`, (err, results, fields) => {
+  const stmt = `
+    SELECT id, first_name as firstName, last_name as lastName 
+    FROM patients
+    WHERE first_name = '${firstName}' 
+    AND last_name = '${lastName}';
+    `;
+  db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
     res.send(results);
   });
@@ -329,19 +343,21 @@ router.get('/patients', function(req, res, next) {
 
 /* Get patient by id */
 router.get('/patients/:id', function(req, res, next) {
-  const id = req.params.id;
-  db.query(`select * from patients where id = ${id}`, (err, results, field) => {
-    if(err) {
-      console.log(err);
-      return;
-    }
-    if(results.length < 1) {
-      res.status = 404;
-      res.send('404 Not Found')
-    } else {
-      res.send(results);
-    }
-  });
+  const id = Number(req.params.id);
+  if(id) {
+    db.query(`select * from patients where id = ${id}`, (err, results, field) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      if(results.length < 1) {
+        res.status = 404;
+        res.send('404 Not Found')
+      } else {
+        res.send(results);
+      }
+    });
+  }
 });
 
 /* Create Patient's Name */
@@ -358,7 +374,7 @@ router.post('/patients', function(req, res, next) {
   db.query(`INSERT INTO patients(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
     if(err) {
       console.log(err);
-      return;
+      next();
     }
 
     res.status(201).send("Resource created");
