@@ -231,7 +231,7 @@ router.get('/appointments', function(req, res, next) {
         let date = moment(each.date).format('YYYY-MM-DD');
         let time = moment.utc(each.date).format('HH:mm:ss');
 
-        next() {
+        return {
           id: each.id,
           date,
           time,
@@ -326,37 +326,52 @@ router.post('/appointments', function(req, res, next) {
 router.get('/patients', function(req, res, next) {
   const firstName = req.query['first_name'];
   const lastName = req.query['last_name'];
-  const stmt = `
+
+  if(firstName && lastName) {
+    const stmt = `
     SELECT id, first_name as firstName, last_name as lastName 
     FROM patients
     WHERE first_name = '${firstName}' 
     AND last_name = '${lastName}';
     `;
-  db.query(stmt, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      next();
-    }
-    res.send(results);
-  });
+    db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+      if(results.affectedRows) {
+        res.send(results);
+      } else {
+        res.sendStatus(404);
+      }
+    });
+  } else {
+    res.sendStatus(400);
+  }
 });
 
 /* Get patient by id */
 router.get('/patients/:id', function(req, res, next) {
   const id = Number(req.params.id);
   if(id) {
-    db.query(`select * from patients where id = ${id}`, (err, results, field) => {
+    const stmt = `
+      SELECT id, first_name as firstName, last_name as lastName
+      FROM patients
+      WHERE id = ${id};
+    `;
+    db.query(stmt, (err, results, field) => {
       if(err) {
         console.log(err);
         next();
       }
-      if(results.length < 1) {
-        res.status = 404;
-        res.send('404 Not Found')
-      } else {
+      if(results.affectedRows) {
         res.send(results);
+      } else {
+        res.sendStatus(404);
       }
     });
+  } else {
+    res.sendStatus(400);
   }
 });
 
@@ -365,20 +380,24 @@ router.post('/patients', function(req, res, next) {
   const firstName = req.body['firstName'];
   const lastName = req.body['lastName'];
 
-  /* Check if body param is not empty */
-  if(!firstName || !lastName) {
-    res.send("first-name or last-name cannot be empty");
+  if(firstName && lastName) {
+    const stmt = `
+      INSERT INTO patients(first_name, last_name)
+      VALUES('${firstName}', '${lastName}');
+    `;
+    db.query(stmt, (err, results, fields) => {
+      if(err) {
+        console.log(err);
+        next();
+      }
+  
+      res.location(`/patients/${results.insertId}`);
+      res.sendStatus(204);
+    });
+  } else {
+    res.sendStatus(400);
   }
-
-  /* Insert name into db */
-  db.query(`INSERT INTO patients(first_name, last_name) VALUES ('${firstName}', '${lastName}')`, (err, results, fields) => {
-    if(err) {
-      console.log(err);
-      next();
-    }
-
-    res.status(201).send("Resource created");
-  });
+  
 });
 
 module.exports = router;
