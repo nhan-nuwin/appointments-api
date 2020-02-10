@@ -1,6 +1,12 @@
-# Appoinments - Backend RESTful API
-A backend RESTful API for appointments for a doctor's office
+# Appointments - Backend RESTful API
+Created a backend RESTful API to schedule appointments for a mock doctor's office
+to learn about REST APIs.
 
+Technologies used
+Web Server - NodeJS, Express 
+Database - MySQL
+Testing - Mocha and Supertest
+REST Client - Insomnia
 ## API Endpoints
 ### Doctors  
 GET /v1/doctors  |List all doctors
