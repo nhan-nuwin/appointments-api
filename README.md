@@ -8,12 +8,11 @@ A backend RESTful api to manage doctor's appointments
 4. POST to create an appointment for a doctor
 
 ## API Endpoints
-# Doctors 
-| ------------- |-----------------| 
-|GET /doctors  |List all doctors|
-|GET /doctors/{id}|Get doctor by id|
-|GET /doctors?firstName{firstName}|Get doctor by first name|
-|GET /doctors?lastName{lastName}|Get doctor by last name|
+### Doctors  
+GET /doctors  |List all doctors|
+GET /doctors/{id}|Get doctor by id|
+GET /doctors?firstName{firstName}|Get doctor by first name|
+GET /doctors?lastName{lastName}|Get doctor by last name|
 
 
 ## Data Models
