@@ -10,7 +10,7 @@ A backend RESTful api to manage doctor's appointments
 ## API Endpoints
 ### Doctors  
 GET /doctors  |List all doctors
----|---
+:---|:---
 GET /doctors/{id}|Get doctor by id
 GET /doctors?firstName{firstName}|Get doctor by first name
 GET /doctors?lastName{lastName}|Get doctor by last name
