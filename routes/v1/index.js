@@ -15,7 +15,7 @@ router.get('/doctors', function(req, res, next) {
       console.log(err);
       next();
     }
-    res.send(results);
+    res.json(results);
   });
 });
 

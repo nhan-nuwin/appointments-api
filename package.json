@@ -18,5 +18,9 @@
     "mysql": "^2.17.1",
     "random-profile-generator": "^2.3.0",
     "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "mocha": "^7.0.1",
+    "supertest": "^4.0.2"
   }
 }
