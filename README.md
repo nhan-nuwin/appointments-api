@@ -18,16 +18,6 @@ POST /v1/doctors|Create new doctor
 PUT /v1/doctors/{id}|Update for doctor
 DELETE /v1/doctirs{id}|Delete for doctor
 
-### Patients
-GET /patients  |List all patients
-:---|:---
-GET /v1/patients/{id}|Get patient by id
-GET /v1/patients?firstName{firstName}|Get patient by first name
-GET /v1/patients?lastName{lastName}|Get patient by last name
-POST /v1/patients|Create new patient
-PUT /v1/patients|Update for patient
-DELETE /v1/patients|Delete for patient
-
 ### Appointments
 GET /v1/appointments  |List all appointments
 :---|:---
@@ -53,6 +43,6 @@ Appointments = {
   date: date,
   patient: id int
   doctor: id int,
-  type: string
+  vist_type: string
 }
 ```
