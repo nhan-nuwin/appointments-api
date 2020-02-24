@@ -51,17 +51,17 @@ router.get('/doctors/:id', function(req, res, next) {
     db.query(stmt, (err, results, field) => {
       if(err) {
         console.log(err);
-        next();
+        return res.status(500).json({error: "Server Error"});
       }
 
       if(results.length > 0) {
         res.send(results);
       } else {
-        res.sendStatus(404);
+        res.status(404).json({error: "Resource not found"});
       }
     });
   } else {
-    res.sendStatus(400);
+    res.status(400).json({error: "Invalid Parameters"});
   } 
 });
 
@@ -79,12 +79,12 @@ router.post('/doctors', function(req, res, next) {
     db.query(stmt, (err, results, fields) => {
       if(err) {
         console.log(err);
-        next();
+        return res.status(500).json({error: "Server Error"});
       }
       console.log(results);
       const rowId = results.insertId;
       res.location(`/doctors/${rowId}`);
-      res.sendStatus(204);
+      res.status(201).json({status: 'Resource Created'});
     }); 
   } else {
     res.sendStatus(400);
@@ -106,7 +106,7 @@ router.put('/doctors/:id', function(req, res, next) {
     db.query(`UPDATE doctors SET first_name = '${firstName}', last_name = '${lastName}' WHERE id = ${id}`, (err, results, fields) => {
       if(err) {
         console.log(err);
-        next();
+        return res.status(500).json({error: "Server Error"});
       }
       if(results.affectedRows) {
         res.location(`/doctors/${id}`);
@@ -132,7 +132,7 @@ router.delete('/doctors/:id', function(req, res, next) {
     db.query(`DELETE from doctors WHERE id = ${id}`, (err, results, field) => {
       if(err) {
         console.log(err);
-        next();
+        return res.status(500).json({error: "Server Error"});
       }
       if(results.affectedRows) {
         res.sendStatus(204);
@@ -241,7 +241,7 @@ router.get('/appointments', function(req, res, next) {
   db.query(stmt, (err, results, fields) => {
     if(err) {
       console.log(err);
-      next();
+      return res.status(500).json({error: "Server Error"});
     }
 
     if(results.length > 0) {
@@ -284,7 +284,7 @@ router.delete('/appointments/:id', function(req, res, next) {
     db.query(stmt, (err, results, fields) => {
       if(err) {
         console.log(err);
-        next();
+        return res.status(500).json({error: "Server Error"});
       }
       if(results.affectedRows) {
         res.location(`/appointments/${id}`);
@@ -325,7 +325,7 @@ router.post('/appointments', function(req, res, next) {
             db.query(stmt, (err, results, fields) => {
               if(err) {
                 console.log(err);
-                next();
+                return res.status(500).json({error: "Server Error"});
               }
               res.send(results);
             });

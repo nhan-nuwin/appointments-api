@@ -11,9 +11,10 @@ REST Client - Insomnia
 ### Doctors  
 GET /v1/doctors  |List all doctors
 :---|:---
+GET /v1/doctors?firstName={firstName}|Get doctors by first name
+GET /v1/doctors?lastName={lastName}|Get doctors by last name
+GET /v1/doctors?firstName={firstName}&lastName={lastName}|Get doctors by first and last name
 GET /v1/doctors/{id}|Get doctor by id
-GET /v1/doctors?firstName{firstName}|Get doctor by first name
-GET /v1/doctors?lastName{lastName}|Get doctor by last name
 POST /v1/doctors|Create new doctor
 PUT /v1/doctors/{id}|Update for doctor
 DELETE /v1/doctirs{id}|Delete for doctor
